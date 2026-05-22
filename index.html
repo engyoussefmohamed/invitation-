@@ -707,6 +707,27 @@
   }
   .skip-link:focus { top: 6px; }
 
+  .music-toggle {
+    display: none;
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    z-index: 10001;
+    background: rgba(184, 150, 106, 0.95);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.18);
+  }
+  .music-toggle:hover,
+  .music-toggle:focus-visible {
+    background: #d4b483;
+  }
+
   /* RSVP modal */
   .modal {
     position: fixed;
@@ -747,6 +768,8 @@
 </style>
 </head>
 <body>
+  <audio id="background-music" src="song.mpeg" autoplay loop preload="auto" playsinline></audio>
+  <button id="music-toggle" class="music-toggle" type="button">تشغيل الموسيقى</button>
   <canvas id="petals-canvas" aria-hidden="true"></canvas>
   <a href="#main" class="skip-link">تخطي إلى المحتوى</a>
 <div id="main" class="invitation">
@@ -981,6 +1004,45 @@
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
   // Optionally expose export for admins via console: call exportRsvps()
+
+  const backgroundMusic = document.getElementById('background-music');
+  const musicToggle = document.getElementById('music-toggle');
+
+  function showMusicButton() {
+    if (musicToggle) {
+      musicToggle.style.display = 'inline-flex';
+    }
+  }
+
+  function startMusic() {
+    if (!backgroundMusic) return;
+    const playPromise = backgroundMusic.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        showMusicButton();
+        document.body.addEventListener('click', onFirstInteraction, { once: true });
+      });
+    }
+  }
+
+  function onFirstInteraction() {
+    if (!backgroundMusic) return;
+    backgroundMusic.play().catch(() => {
+      showMusicButton();
+    });
+  }
+
+  if (musicToggle) {
+    musicToggle.addEventListener('click', () => {
+      if (!backgroundMusic) return;
+      backgroundMusic.play().catch(() => {
+        /* ignore */
+      });
+      musicToggle.style.display = 'none';
+    });
+  }
+
+  startMusic();
 </script>
 </body>
 </html>
